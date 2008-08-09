@@ -45,7 +45,6 @@ function errorlytics_post($url, $key, $account_id, $website_id) {
     $path = '/accounts/' . $account_id . '/websites/' . $website_id . '/errors';
     $params = errorlytics_params($path, $key);
     $ch = curl_init();
-    // TODO: really need to check for / at end of $url so don't double up
     curl_setopt($ch, CURLOPT_URL, $url . $path);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
