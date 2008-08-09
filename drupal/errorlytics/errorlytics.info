@@ -1,0 +1,3 @@
+; $Id$
+name = Errorlytics
+description = "A module to interface with Errorlytics."

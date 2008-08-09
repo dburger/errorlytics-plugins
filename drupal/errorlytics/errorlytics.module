@@ -1,0 +1,145 @@
+<?php
+// $Id$
+
+// drupal_set_message('Doing something.....', 'error'); is very good for debugging
+
+// constants
+define('ERRORLYTICS_DEFAULT_URL', 'http://www.errorlytics.com');
+define('ERRORLYTICS_URL_VAR_NAME', 'errorlytics_url');
+define('ERRORLYTICS_SECRET_KEY_VAR_NAME', 'errorlytics_secret_key');
+define('ERRORLYTICS_ACCOUNT_ID_VAR_NAME', 'errorlytics_account_id');
+define('ERRORLYTICS_WEBSITE_ID_VAR_NAME', 'errorlytics_website_id');
+
+function errorlytics_menu() {
+    $items = array();
+
+    $items[] = array(
+        'path' => 'errorlytics',
+        'title' => t('Page not found'),
+        'access' => true,
+        'callback' => 'errorlytics',
+        'type' => MENU_LOCAL_TASK
+    );
+
+    $items[] = array(
+        'path' => 'admin/settings/errorlytics',
+        'title' => t('Errorlytics module settings'),
+        'description' => t('Errorlytics module settings'),
+        'callback' => 'drupal_get_form',
+        'callback arguments' => 'errorlytics_admin',
+        'access' => user_access('access administration pages'),
+        'type' => MENU_NORMAL_ITEM
+    );
+
+    return $items;
+}
+
+function errorlytics_params($path, $key) {
+    $params = array(
+        'error[http_host]' => $_SERVER['HTTP_HOST'],
+        'error[request_uri]' => $_SERVER['REQUEST_URI'],
+        'error[http_user_agent]' => $_SERVER['HTTP_USER_AGENT'],
+        'error[remote_addr]' => $_SERVER['REMOTE_ADDR'],
+        'error[http_referer]' => $_SERVER['HTTP_REFERER']
+    );
+    $client_occurred_at = gmdate('Y-m-d\TH:i:s\Z');
+    $params['error[client_occurred_at]'] = $client_occurred_at;
+    $params['signature'] = sha1($client_occurred_at . $path . $key);
+    $params['error[fake]'] = 'false';
+    $params['format'] = 'xml';
+    return $params;
+}
+
+function errorlytics_post($url, $key, $account_id, $website_id) {
+    $path = '/accounts/' . $account_id . '/websites/' . $website_id . '/errors';
+    $params = errorlytics_params($path, $key);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url . $path);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return $response;
+}
+
+function errorlytics_variable_get_trim($variable, $default) {
+    $value = variable_get($variable, $default);
+    // we are using false as default below so we don't trim false
+    if ($value) $value = trim($value);
+    return $value;
+}
+
+function errorlytics() {
+    // the variables get trimmed on both ends during storage, so don't worry
+    // about that, but make sure to take the / of the tail of the url
+    $url = variable_get(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL);
+    $url = chop($url, '/');
+    $key = variable_get(ERRORLYTICS_SECRET_KEY_VAR_NAME, false);
+    $account_id = variable_get(ERRORLYTICS_ACCOUNT_ID_VAR_NAME, false);
+    $website_id = variable_get(ERRORLYTICS_WEBSITE_ID_VAR_NAME, false);
+
+    // if missing settings let fall through to default 404 page
+    if (!$url || !$key || !$account_id || !$website_id) return;
+
+    $response = errorlytics_post($url, $key, $account_id, $website_id);
+
+    preg_match('/<response-code>(.+)<\/response-code>/', $response, $matches);
+    $response_code = $matches[1];
+
+    preg_match('/<uri>(.+)<\/uri>/', $response, $matches);
+    $uri = $matches[1];
+
+    switch ($response_code) {
+        case '404':
+            // falling through to default drupal 404 page for now
+            // this is probably a better idea than taking the 404
+            // page from the return
+            break;
+        case '301':
+        case '302':
+            // TODO: may want to switch to drupal_goto for in site redirects
+            header('Location: ' . $uri, true, $response_code);
+            break;
+    }
+}
+
+/*
+function errorlytics_help($section='') {
+    return 'provide help or ditch this func?';
+}
+*/
+
+function errorlytics_perm() {
+    return array('administer errorlytics');
+}
+
+function errorlytics_admin() {
+    $form = array();
+    $form[ERRORLYTICS_URL_VAR_NAME] = array(
+        '#type' => 'textfield',
+        '#title' => t('Errorlytics URL'),
+        '#default_value' => variable_get(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL),
+        '#description' => t('The URL hosting the Errorlytics service.')
+    );
+    $form[ERRORLYTICS_SECRET_KEY_VAR_NAME] = array(
+        '#type' => 'textfield',
+        '#title' => t('Errorlytics Secret Key'),
+        '#default_value' => variable_get(ERRORLYTICS_SECRET_KEY_VAR_NAME, ''),
+        '#description' => t('Your secret key for the Errorlytics service.')
+    );
+    $form[ERRORLYTICS_ACCOUNT_ID_VAR_NAME] = array(
+        '#type' => 'textfield',
+        '#title' => t('Errorlytics Account ID'),
+        '#default_value' => variable_get(ERRORLYTICS_ACCOUNT_ID_VAR_NAME, ''),
+        '#description' => t('Your account id for the Errorlytics service.')
+    );
+    $form[ERRORLYTICS_WEBSITE_ID_VAR_NAME] = array(
+        '#type' => 'textfield',
+        '#title' => t('Errorlytics Website ID'),
+        '#default_value' => variable_get(ERRORLYTICS_WEBSITE_ID_VAR_NAME, ''),
+        '#description' => t('Your website id for the Errorlytics service.')
+    );
+
+    return system_settings_form($form);
+}
