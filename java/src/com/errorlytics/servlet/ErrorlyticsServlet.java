@@ -58,13 +58,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ErrorlyticsServlet extends HttpServlet {
 
     private final String ENCODING = "UTF-8";
     private final SimpleDateFormat SDF =
-            new SimpleDateFormat("yyyy-MM-dd\\zkk:mm:ss\\Z");
+            new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss'Z'");
+
+    Pattern RESP_CODE_PATTERN = Pattern.compile("<response-code>(.+)</response-code>");
+    Pattern URI_PATTERN = Pattern.compile("<uri>(.+)</uri>");
 
     private ServletContext _servletContext;
 
@@ -95,7 +99,16 @@ public class ErrorlyticsServlet extends HttpServlet {
             } catch (NoSuchAlgorithmException exc) {
                 throw new IOException(exc);
             }
-            out.println(response);
+
+            Matcher rcm = RESP_CODE_PATTERN.matcher(response);
+            Matcher um = URI_PATTERN.matcher(response);
+            if (rcm.find() && um.find()) {
+                String responseCode = rcm.group(1);
+                String uri = um.group(1);
+                out.println("was " + responseCode + " and " + uri);
+            } else {
+                out.println("didn't match");
+            }
         }
     }
 
@@ -141,7 +154,7 @@ public class ErrorlyticsServlet extends HttpServlet {
         content.append("&error[http_referer]=" + e(req.getHeader("Referer")));
         String occurredAt = SDF.format(new Date());
         content.append("&error[client_occurred_at]=" + e(occurredAt));
-        content.append("&error[signature]=" + e(sha1(occurredAt + path + _secretKey)));
+        content.append("&signature=" + e(sha1(occurredAt + path + _secretKey)));
         content.append("&error[fake]=false");
         content.append("&format=xml");
         return content.toString();
