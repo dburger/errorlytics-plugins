@@ -2,12 +2,10 @@
 // $Id$
 
 function errorlytics_enable() {
-    drupal_set_message('Hello world the witch is alive.', 'error');
     variable_set('site_404', 'errorlytics');
 }
 
 function errorlytics_disable() {
-    drupal_set_message('Hello world the witch is dead.', 'error');
     if (variable_get('site_404', '') == 'errorlytics') {
         variable_del('site_404');
     }
