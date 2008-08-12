@@ -2,4 +2,3 @@
 name = Errorlytics
 description = "A module to interface with Errorlytics."
 core = 6.x
-

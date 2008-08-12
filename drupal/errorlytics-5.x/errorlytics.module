@@ -1,8 +1,6 @@
 <?php
 // $Id$
 
-// drupal_set_message('Doing something.....', 'error'); is very good for debugging
-
 // constants
 define('ERRORLYTICS_DEFAULT_URL', 'http://www.errorlytics.com');
 define('ERRORLYTICS_URL_VAR_NAME', 'errorlytics_url');
@@ -12,7 +10,6 @@ define('ERRORLYTICS_WEBSITE_ID_VAR_NAME', 'errorlytics_website_id');
 
 function errorlytics_menu() {
     $items = array();
-
     $items[] = array(
         'path' => 'errorlytics',
         'title' => t('Page not found'),
@@ -20,7 +17,6 @@ function errorlytics_menu() {
         'callback' => 'errorlytics',
         'type' => MENU_LOCAL_TASK
     );
-
     $items[] = array(
         'path' => 'admin/settings/errorlytics',
         'title' => t('Errorlytics module settings'),
@@ -30,7 +26,6 @@ function errorlytics_menu() {
         'access' => user_access('access administration pages'),
         'type' => MENU_NORMAL_ITEM
     );
-
     return $items;
 }
 
@@ -73,11 +68,11 @@ function errorlytics_variable_get_trim($variable, $default) {
 function errorlytics() {
     // the variables get trimmed on both ends during storage, so don't worry
     // about that, but make sure to take the / of the tail of the url
-    $url = variable_get(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL);
+    $url = errorlytics_variable_get_trim(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL);
     $url = chop($url, '/');
-    $key = variable_get(ERRORLYTICS_SECRET_KEY_VAR_NAME, false);
-    $account_id = variable_get(ERRORLYTICS_ACCOUNT_ID_VAR_NAME, false);
-    $website_id = variable_get(ERRORLYTICS_WEBSITE_ID_VAR_NAME, false);
+    $key = errorlytics_variable_get_trim(ERRORLYTICS_SECRET_KEY_VAR_NAME, false);
+    $account_id = errorlytics_variable_get_trim(ERRORLYTICS_ACCOUNT_ID_VAR_NAME, false);
+    $website_id = errorlytics_variable_get_trim(ERRORLYTICS_WEBSITE_ID_VAR_NAME, false);
 
     // if missing settings let fall through to default 404 page
     if (!$url || !$key || !$account_id || !$website_id) return;
@@ -120,26 +115,29 @@ function errorlytics_admin() {
         '#type' => 'textfield',
         '#title' => t('Errorlytics URL'),
         '#default_value' => variable_get(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL),
-        '#description' => t('The URL hosting the Errorlytics service.')
+        '#description' => t('The URL hosting the Errorlytics service.'),
+        '#required' => true
     );
     $form[ERRORLYTICS_SECRET_KEY_VAR_NAME] = array(
         '#type' => 'textfield',
         '#title' => t('Errorlytics Secret Key'),
         '#default_value' => variable_get(ERRORLYTICS_SECRET_KEY_VAR_NAME, ''),
-        '#description' => t('Your secret key for the Errorlytics service.')
+        '#description' => t('Your secret key for the Errorlytics service.'),
+        '#required' => true
     );
     $form[ERRORLYTICS_ACCOUNT_ID_VAR_NAME] = array(
         '#type' => 'textfield',
         '#title' => t('Errorlytics Account ID'),
         '#default_value' => variable_get(ERRORLYTICS_ACCOUNT_ID_VAR_NAME, ''),
-        '#description' => t('Your account id for the Errorlytics service.')
+        '#description' => t('Your account id for the Errorlytics service.'),
+        '#required' => true
     );
     $form[ERRORLYTICS_WEBSITE_ID_VAR_NAME] = array(
         '#type' => 'textfield',
         '#title' => t('Errorlytics Website ID'),
         '#default_value' => variable_get(ERRORLYTICS_WEBSITE_ID_VAR_NAME, ''),
-        '#description' => t('Your website id for the Errorlytics service.')
+        '#description' => t('Your website id for the Errorlytics service.'),
+        '#required' => true
     );
-
     return system_settings_form($form);
 }
