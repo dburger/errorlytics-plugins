@@ -15,7 +15,7 @@ function errorlytics_menu() {
         'title' => t('Page not found'),
         'access' => true,
         'callback' => 'errorlytics',
-        'type' => MENU_LOCAL_TASK
+        'type' => MENU_CALLBACK
     );
     $items[] = array(
         'path' => 'admin/settings/errorlytics',
