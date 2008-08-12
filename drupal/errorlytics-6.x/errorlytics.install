@@ -1,0 +1,14 @@
+<?php
+// $Id$
+
+function errorlytics_enable() {
+    drupal_set_message("enable", "error");
+    variable_set('site_404', 'errorlytics');
+}
+
+function errorlytics_disable() {
+    drupal_set_message("disable", "error");
+    if (variable_get('site_404', '') == 'errorlytics') {
+        variable_del('site_404');
+    }
+}
