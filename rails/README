@@ -1,0 +1,46 @@
+= Errolytics Plugin for Rails
+
+The Errorlytics plugin provides an interface to the Errorlytics system
+(http://www.errorlytics.com).  Errorlytics is an easy to use service that
+centralizes reporting and handling of 404 "Page Not Found" errors for your
+websites. Errorlytics gives you the tools to transparently fix the problems
+quickly and easily so they never happen again. No more regex writing, no more
+messing with your .htaccess file for search engine friendly redirects.
+Errorlytics handles it all, effortlessly. The end results are better user
+experiences and higher search engine rankings for your websites.
+
+== Usage
+
+Include the Errorlytics module in any controller you want to use the
+Errorlytics service.  Typically you will want to use Errorlytics with all of
+your controllers and thus should include the Errorlytics module in your
+ApplicationController as follows:
+
+    class ApplicationController < ActionController::Base
+      include Errorlytics
+      ...
+    end
+
+The Errorlytics plugin works by defining a rescue_action_in_public method
+on the controllers that it will work with.  If you have defined your own
+rescue_action_in_public method for error handling then make sure to place
+the include AFTER your rescue_action_in_public method.
+
+You also need to configure Errorlytics as explained in the configuration
+section below.
+
+== Configuration
+
+To configure Errolytics you need to set the secret key, account id, and
+website id.  A good place to put this configuration would be in an
+initializer or in your environment.  The code should look similar to the
+following:
+
+Errorlytics.secret_key = 'YOUR SECRET KEY';
+Errorlytics.account_id = 'YOUR ACCOUNT ID';
+Errorlytics.website_id = 'YOUR WEBSITE ID';
+
+The correct values for these settings can be find on the "Rails" tab of
+the "Client Plugins" section for the website you are configuring.
+
+Copyright (c) 2008 David J. Burger, released under the MIT license
