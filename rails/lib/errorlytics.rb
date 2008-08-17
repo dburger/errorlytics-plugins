@@ -35,7 +35,6 @@ module Errorlytics
   end
 
   def check_with_errorlytics(exc)
-    # returns a Net::HTTPResponse or nil
     response = get_errorlytics_response
     rescue_action_in_public_without_errorlytics(exc) and return if !response
     response = response.body
@@ -63,6 +62,7 @@ module Errorlytics
     data << '&format=xml'
   end
 
+  # returns a Net::HTTPResponse or nil, body is in response.body
   def get_errorlytics_response
     url = Errorlytics.account_url
     Net::HTTP.start(url.host, url.port) do |http|
