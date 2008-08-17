@@ -130,4 +130,11 @@
         }
     }
 %>
-DEFAULT 404 PAGE HERE ONLY GETS HERE IF NO REDIRECT FROM ERRORLYTICS
+<html>
+    <head>
+        <title>404 Not Found</title>
+    </head>
+    <body>
+        <p>The requested URL <%= pageContext.getAttribute("javax.servlet.error.request_uri", PageContext.REQUEST_SCOPE).toString() %> was not found on this server.</p>
+    </body>
+</html>
