@@ -135,6 +135,7 @@
         <title>404 Not Found</title>
     </head>
     <body>
+        <h1>404 Not Found</h1>
         <p>The requested URL <%= pageContext.getAttribute("javax.servlet.error.request_uri", PageContext.REQUEST_SCOPE).toString() %> was not found on this server.</p>
     </body>
 </html>
