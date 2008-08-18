@@ -48,18 +48,24 @@ module Errorlytics
     end
   end
 
+  def form_url_encode(hash)
+    hash.map {|k, v| k + '=' + CGI.escape(v)}.join('&')
+  end
+
   def create_errorlytics_data(path)
-    data = 'error[http_host]=' + CGI.escape(request.host)
-    data << '&error[request_uri]=' + CGI.escape(request.request_uri)
-    data << '&error[http_user_agent]=' + CGI.escape(request.headers['User-Agent'])
-    data << '&error[remote_addr]=' + CGI.escape(request.remote_ip)
-    data << '&error[http_referer]=' + CGI.escape(request.headers['Referer'] || '')
+    data = {}
+    data['error[http_host]'] = request.host
+    data['error[request_uri]'] = request.request_uri
+    data['error[http_user_agent]'] = request.headers['User-Agent']
+    data['error[remote_addr]'] = request.remote_ip
+    data['error[http_referer]'] = (request.headers['Referer'] || '')
     occurred_at = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%SZ')
-    data << '&error[client_occurred_at]=' + CGI.escape(occurred_at)
+    data['error[client_occurred_at]'] = occurred_at
     signature = Digest::SHA1.hexdigest(occurred_at + path + Errorlytics.secret_key)
-    data << '&signature=' + CGI.escape(signature)
-    data << '&error[fake]=false'
-    data << '&format=xml'
+    data['signature'] = signature
+    data['error[fake]'] = 'false'
+    data['format'] = 'xml'
+    data
   end
 
   # returns a Net::HTTPResponse or nil, body is in response.body
@@ -72,7 +78,7 @@ module Errorlytics
       headers = {
         'Accept' => 'text/xml, application/xml'
       }
-      data = create_errorlytics_data(url.path)
+      data = form_url_encode(create_errorlytics_data(url.path))
       begin
         response = http.post(url.path, data, headers)
       rescue TimeoutError => exc
