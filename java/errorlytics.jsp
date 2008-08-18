@@ -39,6 +39,10 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 
 <%@ page import="java.util.Date" %>
+<%@ page import="java.util.Enumeration" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.Map.Entry" %>
 <%@ page import="java.util.regex.Matcher" %>
 <%@ page import="java.util.regex.Pattern" %>
 
@@ -53,23 +57,53 @@
     Pattern RESP_CODE_PATTERN = Pattern.compile("<response-code>(.+)</response-code>");
     Pattern URI_PATTERN = Pattern.compile("<uri>(.+)</uri>");
 
-    public String createErrorlyticsContent(HttpServletRequest req, String errorlyticsPath, String requestUri)
+    public String formUrlEncode(HashMap map) throws UnsupportedEncodingException {
+        StringBuilder buf = new StringBuilder();
+        for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
+            Entry e = (Entry)i.next();
+            String key = e.getKey().toString();
+            if ("Cookie".equals(key)) continue;
+            Object value = e.getValue();
+            buf.append(key + "=" + encode(value));
+            if (i.hasNext()) buf.append("&");
+        }
+        return buf.toString();
+    }
+
+    public HashMap createErrorlyticsContentMap(HttpServletRequest req,
+            String errorlyticsPath, String requestUri)
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        StringBuilder content = new StringBuilder();
-        // TODO: is host correct if behind apache?
-        content.append("error[http_host]=" + e(req.getHeader("Host")));
-        // getRequestURI will give us the URI of this error page, thus the
-        // the passing of the PageContext around and requestUri to this method
-        content.append("&error[request_uri]=" + e(requestUri));
-        content.append("&error[http_user_agent]=" + e(req.getHeader("User-Agent")));
-        content.append("&error[remote_addr]=" + e(req.getRemoteAddr()));
-        content.append("&error[http_referer]=" + e(req.getHeader("Referer")));
+        HashMap contentMap = new HashMap();
+
+	for (Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
+            String headerName = (String)e.nextElement();
+            contentMap.put("error[" + headerName.replace('-', '_').toLowerCase()
+                    + "]", req.getHeader(headerName));
+        }
+
+        // XXX: start java fixups, appears many of the environment variables
+        // available in php's $_SERVER may not be directly available from
+        // an HttpServletRequest
+        // 1. "HTTP_HOST" is in the header "HOST"
+        contentMap.put("error[http_host]", req.getHeader("Host"));
+        // 2. getRequestUri() gives the URI of this error page, which is why
+        //    we pass in the requestUri from the original request
+        contentMap.put("error[request_uri]", requestUri);
+        // 3. "HTTP_USER_AGENT" is in the header "User-Agent"
+        contentMap.put("error[http_user_agent]", req.getHeader("User-Agent"));
+        // 4. getRemoteAddr() gives remote address, not in headers
+        contentMap.put("error[remote_addr]", req.getRemoteAddr());
+        // 5. "HTTP_REFERER" is in the header "Referer"
+	contentMap.put("error[http_referer]", req.getHeader("Referer"));
+        // XXX: end java fixups
+
         String occurredAt = SDF.format(new Date());
-        content.append("&error[client_occurred_at]=" + e(occurredAt));
-        content.append("&signature=" + e(sha1(occurredAt + errorlyticsPath + SECRET_KEY)));
-        content.append("&error[fake]=false");
-        content.append("&format=xml");
-        return content.toString();
+        contentMap.put("error[client_occurred_at]", occurredAt);
+        String signature = sha1(occurredAt + errorlyticsPath + SECRET_KEY);
+        contentMap.put("signature", signature);
+        contentMap.put("error[fake]", "false");
+        contentMap.put("format", "xml");
+        return contentMap;
     }
 
     public String getErrorlyticsResponse(HttpServletRequest req, PageContext pageContext)
@@ -82,7 +116,7 @@
         urlCon.setUseCaches(false);
         urlCon.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         String requestUri = pageContext.getAttribute("javax.servlet.error.request_uri", PageContext.REQUEST_SCOPE).toString();
-        String content = createErrorlyticsContent(req, path, requestUri);
+        String content = formUrlEncode(createErrorlyticsContentMap(req, path, requestUri));
         PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(urlCon.getOutputStream())));
         out.print(content);
         out.flush();
@@ -94,8 +128,8 @@
         return response.toString();
     }
 
-    public String e(String value) throws UnsupportedEncodingException {
-        return (value == null) ? "" : URLEncoder.encode(value, ENCODING);
+    public String encode(Object value) throws UnsupportedEncodingException {
+        return (value == null) ? "" : URLEncoder.encode(value.toString(), ENCODING);
     }
 
     public String sha1(String value) throws NoSuchAlgorithmException {
@@ -118,6 +152,8 @@
         try {
             errorlyticsResponse = getErrorlyticsResponse(request, pageContext);
         } catch (IOException exc) {
+            // TODO: 422 :unprocessable_entity will cause an IOException
+            // should still let this fall through to the 404 page below
             throw new IOException(exc);
         }
         Matcher rcm = RESP_CODE_PATTERN.matcher(errorlyticsResponse);
