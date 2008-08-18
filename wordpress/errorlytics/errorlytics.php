@@ -35,6 +35,7 @@ function errorlytics_params($path, $secret_key) {
     $params['signature'] = sha1($client_occurred_at . $path . $secret_key);
     $params['error[fake]'] = 'false';
     $params['format'] = 'xml';
+    $params['plugin_type'] = 'wordpress';
     return $params;
 }
 

@@ -103,6 +103,7 @@
         contentMap.put("signature", signature);
         contentMap.put("error[fake]", "false");
         contentMap.put("format", "xml");
+        contentMap.put("plugin_type", "jsp");
         return contentMap;
     }
 

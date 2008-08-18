@@ -65,6 +65,7 @@ module Errorlytics
     data['signature'] = signature
     data['error[fake]'] = 'false'
     data['format'] = 'xml'
+    data['plugin_type'] = 'rails'
     data
   end
 
