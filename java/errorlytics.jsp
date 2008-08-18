@@ -75,7 +75,7 @@
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
         HashMap contentMap = new HashMap();
 
-	for (Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
+        for (Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
             String headerName = (String)e.nextElement();
             contentMap.put("error[" + headerName.replace('-', '_').toLowerCase()
                     + "]", req.getHeader(headerName));
@@ -94,7 +94,7 @@
         // 4. getRemoteAddr() gives remote address, not in headers
         contentMap.put("error[remote_addr]", req.getRemoteAddr());
         // 5. "HTTP_REFERER" is in the header "Referer"
-	contentMap.put("error[http_referer]", req.getHeader("Referer"));
+        contentMap.put("error[http_referer]", req.getHeader("Referer"));
         // XXX: end java fixups
 
         String occurredAt = SDF.format(new Date());
