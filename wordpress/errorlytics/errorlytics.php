@@ -36,6 +36,7 @@ function errorlytics_params($path, $secret_key) {
     $params['error[fake]'] = 'false';
     $params['format'] = 'xml';
     $params['plugin_type'] = 'wordpress';
+    $params['api_version'] = '1.0';
     return $params;
 }
 

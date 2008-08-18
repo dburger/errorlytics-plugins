@@ -66,6 +66,7 @@ module Errorlytics
     data['error[fake]'] = 'false'
     data['format'] = 'xml'
     data['plugin_type'] = 'rails'
+    data['api_version'] = '1.0'
     data
   end
 
