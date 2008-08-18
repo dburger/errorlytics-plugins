@@ -27,25 +27,22 @@ function errorlytics_menu() {
     return $items;
 }
 
-function errorlytics_params($path, $key) {
-    $params = array(
-        'error[http_host]' => $_SERVER['HTTP_HOST'],
-        'error[request_uri]' => $_SERVER['REQUEST_URI'],
-        'error[http_user_agent]' => $_SERVER['HTTP_USER_AGENT'],
-        'error[remote_addr]' => $_SERVER['REMOTE_ADDR'],
-        'error[http_referer]' => $_SERVER['HTTP_REFERER']
-    );
+function errorlytics_params($path, $secret_key) {
+    $params = array();
+    foreach ($_SERVER as $key => $value) {
+        $params['error[' . strtolower($key) . ']'] = $value;
+    }
     $client_occurred_at = gmdate('Y-m-d\TH:i:s\Z');
     $params['error[client_occurred_at]'] = $client_occurred_at;
-    $params['signature'] = sha1($client_occurred_at . $path . $key);
+    $params['signature'] = sha1($client_occurred_at . $path . $secret_key);
     $params['error[fake]'] = 'false';
     $params['format'] = 'xml';
     return $params;
 }
 
-function errorlytics_post($url, $key, $account_id, $website_id) {
+function errorlytics_post($url, $secret_key, $account_id, $website_id) {
     $path = '/accounts/' . $account_id . '/websites/' . $website_id . '/errors';
-    $params = errorlytics_params($path, $key);
+    $params = errorlytics_params($path, $secret_key);
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url . $path);
     curl_setopt($ch, CURLOPT_POST, true);
@@ -66,14 +63,14 @@ function errorlytics_variable_get_trim($variable, $default) {
 function errorlytics() {
     $url = errorlytics_variable_get_trim(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL);
     $url = chop($url, '/');
-    $key = errorlytics_variable_get_trim(ERRORLYTICS_SECRET_KEY_VAR_NAME, false);
+    $secret_key = errorlytics_variable_get_trim(ERRORLYTICS_SECRET_KEY_VAR_NAME, false);
     $account_id = errorlytics_variable_get_trim(ERRORLYTICS_ACCOUNT_ID_VAR_NAME, false);
     $website_id = errorlytics_variable_get_trim(ERRORLYTICS_WEBSITE_ID_VAR_NAME, false);
 
     // if missing settings let fall through to default 404 page
-    if (!$url || !$key || !$account_id || !$website_id) return;
+    if (!$url || !$secret_key || !$account_id || !$website_id) return;
 
-    $response = errorlytics_post($url, $key, $account_id, $website_id);
+    $response = errorlytics_post($url, $secret_key, $account_id, $website_id);
 
     preg_match('/<response-code>(.+)<\/response-code>/', $response, $matches);
     $response_code = $matches[1];
