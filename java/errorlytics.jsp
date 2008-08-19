@@ -119,6 +119,7 @@
         contentMap.put("error[fake]", "false");
         contentMap.put("format", "xml");
         contentMap.put("plugin_type", "jsp");
+        contentMap.put("plugin_version", "1.0");
         contentMap.put("api_version", "1.0");
         return contentMap;
     }
