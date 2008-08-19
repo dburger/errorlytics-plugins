@@ -28,7 +28,9 @@ function errorlytics_add_menu() {
 function errorlytics_params($path, $secret_key) {
     $params = array();
     foreach ($_SERVER as $key => $value) {
-        $params['error[' . strtolower($key) . ']'] = $value;
+        if (!preg_match("/cookie/i", $key)) {
+            $params['error[' . strtolower($key) . ']'] = $value;
+        }
     }
     $client_occurred_at = gmdate('Y-m-d\TH:i:s\Z');
     $params['error[client_occurred_at]'] = $client_occurred_at;

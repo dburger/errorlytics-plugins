@@ -54,6 +54,7 @@
 
     String ENCODING = "UTF-8";
     SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss'Z'");
+    // Pattern COOKIE_PATTERN = Pattern.compile("cookie", Pattern.CASE_INSENSITIVE);
     Pattern RESP_CODE_PATTERN = Pattern.compile("<response-code>(.+)</response-code>");
     Pattern URI_PATTERN = Pattern.compile("<uri>(.+)</uri>");
 
@@ -75,27 +76,41 @@
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
         HashMap contentMap = new HashMap();
 
+        /* could send all headers except for cookies, but doesn't appear these
+           are the values we need, instead, use request method calls as below
         for (Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
             String headerName = (String)e.nextElement();
-            contentMap.put("error[" + headerName.replace('-', '_').toLowerCase()
-                    + "]", req.getHeader(headerName));
+            if (!COOKIE_PATTERN.matcher(headerName).find()) {
+                contentMap.put("error[" + headerName.replace('-', '_').toLowerCase()
+                        + "]", req.getHeader(headerName));
+            }
         }
+        */
 
-        // XXX: start java fixups, appears many of the environment variables
-        // available in php's $_SERVER may not be directly available from
-        // an HttpServletRequest
-        // 1. "HTTP_HOST" is in the header "HOST"
-        contentMap.put("error[http_host]", req.getHeader("Host"));
-        // 2. getRequestUri() gives the URI of this error page, which is why
-        //    we pass in the requestUri from the original request
-        contentMap.put("error[request_uri]", requestUri);
-        // 3. "HTTP_USER_AGENT" is in the header "User-Agent"
-        contentMap.put("error[http_user_agent]", req.getHeader("User-Agent"));
-        // 4. getRemoteAddr() gives remote address, not in headers
+        contentMap.put("error[server_name]", req.getServerName());
+        contentMap.put("error[server_software]", getServletContext().getServerInfo());
+        contentMap.put("error[server_protocol]", req.getProtocol());
+        contentMap.put("error[server_port]", req.getServerPort());
+        contentMap.put("error[request_method]", req.getMethod());
+        contentMap.put("error[path_info]", req.getPathInfo());
+        contentMap.put("error[path_translated]", req.getPathTranslated());
+        contentMap.put("error[script_name]", req.getServletPath());
+        contentMap.put("error[document_root]", req.getRealPath("/"));
+        contentMap.put("error[query_string]", req.getQueryString());
+        contentMap.put("error[remote_host]", req.getRemoteHost());
         contentMap.put("error[remote_addr]", req.getRemoteAddr());
-        // 5. "HTTP_REFERER" is in the header "Referer"
-        contentMap.put("error[http_referer]", req.getHeader("Referer"));
-        // XXX: end java fixups
+        contentMap.put("error[auth_type]", req.getAuthType());
+        contentMap.put("error[remote_user]", req.getRemoteUser());
+        contentMap.put("error[content_type]", req.getContentType());
+        contentMap.put("error[content_length]", req.getContentLength());
+        contentMap.put("error[http_accept]", req.getHeader("Accept"));
+        contentMap.put("error[http_user_agent]", req.getHeader("User-Agent"));
+        contentMap.put("error[http_referer]", req.getHeader("Referer") );
+
+        contentMap.put("error[http_host]", req.getHeader("Host"));
+        // getRequestUri() gives the URI of this error page, which is why
+        // we pass in the requestUri from the original request from pagecontext
+        contentMap.put("error[request_uri]", requestUri);
 
         String occurredAt = SDF.format(new Date());
         contentMap.put("error[client_occurred_at]", occurredAt);

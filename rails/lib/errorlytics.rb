@@ -54,10 +54,11 @@ module Errorlytics
 
   def create_errorlytics_data(path)
     data = {}
-    data['error[http_host]'] = request.host
-    data['error[request_uri]'] = request.request_uri
-    data['error[http_user_agent]'] = request.headers['User-Agent']
-    data['error[remote_addr]'] = request.remote_ip
+    # request.headers and request.env seem to be equivalent
+    request.env.each do |k, v|
+      data['error[' + k.down_case + ']'] = v.to_s if $key !~ /cookie/i
+    end
+    # TODO: verify that this is the way to get this header on rails
     data['error[http_referer]'] = (request.headers['Referer'] || '')
     occurred_at = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%SZ')
     data['error[client_occurred_at]'] = occurred_at
