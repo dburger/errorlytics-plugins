@@ -56,7 +56,7 @@ module Errorlytics
     data = {}
     # request.headers and request.env seem to be equivalent
     request.env.each do |k, v|
-      data['error[' + k.down_case + ']'] = v.to_s if $key !~ /cookie/i
+      data['error[' + k.downcase + ']'] = v.to_s if k !~ /cookie/i
     end
     # TODO: verify that this is the way to get this header on rails
     data['error[http_referer]'] = (request.headers['Referer'] || '')
