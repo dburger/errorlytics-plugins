@@ -43,4 +43,4 @@ Errorlytics.website_id = 'YOUR WEBSITE ID';
 The correct values for these settings can be find on the "Rails" tab of
 the "Client Plugins" section for the website you are configuring.
 
-Copyright (c) 2008 David J. Burger, released under the MIT license
+Copyright (c) 2008 Accession Media, released under the MIT license
