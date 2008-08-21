@@ -73,10 +73,10 @@
 <%@ page import="java.util.regex.Pattern" %>
 
 <%!
-    String ERRORLYTICS_URL = "http://www.errorlytics.com";
-    final String SECRET_KEY = "YOUR SECRET KEY HERE";
-    final String ACCOUNT_ID = "YOUR ACCOUNT ID HERE";
-    final String WEBSITE_ID = "YOUR WEBSITE ID HERE";
+    String ERRORLYTICS_URL = "$ERRORLYTICS_URL$";
+    final String SECRET_KEY = "$YOUR_SECRET_KEY$";
+    final String ACCOUNT_ID = "$YOUR_ACCOUNT_ID$";
+    final String WEBSITE_ID = "$YOUR_WEBSITE_ID$";
 
     String ENCODING = "UTF-8";
     SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss'Z'");
