@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Errorlytics
-Plugin URI: http://errorlytics.com
-Description: Errorlytics plugin description
-Author: David Burger
-Version: 0.1
-Author URI: http://david-burger.blogspot.com
+Plugin URI: http://www.errorlytics.com
+Description: Interface to the Errorlytics service.
+Author: Accession Media
+Version: 1.0
+Author URI: http://www.errorlytics.com
 */
 
 // constants
