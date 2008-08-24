@@ -4,6 +4,9 @@ require 'net/http'
 
 module Errorlytics
 
+  PLUGIN_VERSION = '1.0'
+  API_VERSION = '1.0'
+
   def self.included(base)
     # no, base.rescue_from ActionController::RoutingError won't work
     # base.rescue_from ActionController::RoutingError, :with => :errorlytics_rescue
@@ -67,8 +70,8 @@ module Errorlytics
     data['error[fake]'] = 'false'
     data['format'] = 'xml'
     data['plugin_type'] = 'rails'
-    data['plugin_version'] = '1.0'
-    data['api_version'] = '1.0'
+    data['plugin_version'] = PLUGIN_VERSION
+    data['api_version'] = API_VERSION
     data
   end
 

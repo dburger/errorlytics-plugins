@@ -78,6 +78,9 @@
     final String ACCOUNT_ID = "$YOUR_ACCOUNT_ID$";
     final String WEBSITE_ID = "$YOUR_WEBSITE_ID$";
 
+    final String PLUGIN_VERSION = "1.0";
+    final String API_VERSION = "1.0";
+
     String ENCODING = "UTF-8";
     SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss'Z'");
     // Pattern COOKIE_PATTERN = Pattern.compile("cookie", Pattern.CASE_INSENSITIVE);
@@ -145,8 +148,8 @@
         contentMap.put("error[fake]", "false");
         contentMap.put("format", "xml");
         contentMap.put("plugin_type", "jsp");
-        contentMap.put("plugin_version", "1.0");
-        contentMap.put("api_version", "1.0");
+        contentMap.put("plugin_version", PLUGIN_VERSION);
+        contentMap.put("api_version", API_VERSION);
         return contentMap;
     }
 

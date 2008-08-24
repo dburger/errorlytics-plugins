@@ -32,6 +32,8 @@ define('ERRORLYTICS_URL_VAR_NAME', 'errorlytics_url');
 define('ERRORLYTICS_SECRET_KEY_VAR_NAME', 'errorlytics_secret_key');
 define('ERRORLYTICS_ACCOUNT_ID_VAR_NAME', 'errorlytics_account_id');
 define('ERRORLYTICS_WEBSITE_ID_VAR_NAME', 'errorlytics_website_id');
+define('ERRORLYTICS_PLUGIN_VERSION', '1.0');
+define('ERRORLYTICS_API_VERSION', '1.0');
 
 function errorlytics_menu() {
     $items = array();
@@ -65,8 +67,9 @@ function errorlytics_params($path, $secret_key) {
     $params['error[fake]'] = 'false';
     $params['format'] = 'xml';
     $params['plugin_type'] = 'drupal_6.x';
-    $params['plugin_version'] = '1.0';
-    $params['api_version'] = '1.0';
+    $params['plugin_version'] = ERRORLYTICS_PLUGIN_VERSION;
+    $params['api_version'] = ERRORLYTICS_API_VERSION;
+
     return $params;
 }
 

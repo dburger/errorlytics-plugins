@@ -25,6 +25,9 @@ THE SOFTWARE.
 
 */
 
+define('ERRORLYTICS_PLUGIN_VERSION', '1.0');
+define('ERRORLYTICS_API_VERSION', '1.0');
+
 # escape the process if we are handling a 404 request that we generated
 if ($_GET['__errorlytics__']) {
     echo '<h1>HTTP/1.1 404 Not Found</h1>';
@@ -56,8 +59,8 @@ function errorlytics_params($path, $secret_key) {
     $params['error[fake]'] = 'false';
     $params['format'] = 'xml';
     $params['plugin_type'] = 'php';
-    $params['plugin_version'] = '1.0';
-    $params['api_version'] = '1.0';
+    $params['plugin_version'] = ERRORLYTICS_PLUGIN_VERSION;
+    $params['api_version'] = ERRORLYTICS_API_VERSION;
     return $params;
 }
 
