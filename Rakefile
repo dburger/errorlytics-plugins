@@ -7,6 +7,10 @@ def get_php_string_constant(constant_name, source)
   (source =~ /^define\('#{constant_name}', '(.*)'\);$/) ? $1 : nil
 end
 
+# This script uses the ERRORLYTICS_ROOT environment variable to determine the
+# path to the local errorlytics repository.
+ERRORLYTICS_ROOT = ENV['ERRORLYTICS_ROOT']
+
 BUILDDIR = File.join(File.dirname(__FILE__), 'build')
 TEXT_REPLACEMENTS = {
   '$ERRORLYTICS_URL$' => 'http://<%= DEFAULT_URL_HOST %>',
@@ -82,3 +86,16 @@ file "#{BUILDDIR}/#{target_filename}" => FileList['#{src_directory}/errorlytics/
   system(cmd)
 end
 task :wordpress => [BUILDDIR, "#{BUILDDIR}/#{target_filename}"]
+
+desc "Builds the plugins and deploys them to a local errorlytics repository."
+task :deploy => :build_all do
+  raise 'ERRORLYTICS_ROOT is not defined.' if ERRORLYTICS_ROOT.nil?
+  cp "#{BUILDDIR}/errorlytics.jsp", "#{ERRORLYTICS_ROOT}/client"
+  cp "#{BUILDDIR}/errorlytics.php", "#{ERRORLYTICS_ROOT}/client"
+  Dir["#{BUILDDIR}/errorlytics-drupal-*"].each do |filename|
+    cp filename, "#{ERRORLYTICS_ROOT}/public/plugins/drupal"
+  end
+  Dir["#{BUILDDIR}/errorlytics-wordpress-*"].each do |filename|
+    cp filename, "#{ERRORLYTICS_ROOT}/public/plugins/wordpress"
+  end
+end
