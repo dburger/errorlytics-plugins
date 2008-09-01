@@ -1,5 +1,5 @@
-/* sha1: http://www.webtoolkit.info/ */
 var ERRORLYTICS = {
+	/* sha1: http://www.webtoolkit.info/ */
 	sha1:function(msg) {
 		function rotate_left(n,s) {
 			var t4 = ( n<<s ) | (n>>>(32-s));
@@ -165,6 +165,11 @@ var ERRORLYTICS = {
 
 		return temp.toLowerCase();
 	},
+	chomp:function(str, character) {
+		var i = str.length - 1;
+		return (str.charAt(i) == character) ? str.substring(0, i) : str;
+	},
+	strip:function(str) {return str.replace(/^\s*|\s*$/g, "");},
 	getDate:function() {
 		var now = new Date();
 		var year = now.getFullYear();
@@ -176,16 +181,20 @@ var ERRORLYTICS = {
 		return year + "-" + month + "-" + day + "T" + hour + "-" + minute + "-" +
 			second + "Z";
 	},
+	doOdj:function(url) {
+		var script = document.createElement("script");
+		script.src = url;
+		var head = document.getElementsByTagName("head")[0];
+		head.appendChild(script);
+	},
 	testSettings:function(url, secretKey, accountId, websiteId) {
 		var date = this.getDate();
-		var path = "/accounts/" + accountId + "/websites/" + websiteId + "/errors";
+		var path = "/accounts/" + this.strip(accountId) + "/websites/"
+			+ this.strip(websiteId) + "/errors";
 		var signature = this.sha1(date + path + secretKey);
 		var data = "error[client_occurred_at]=" + date;
 		data += "&error[fake]=true";
 		data += "&signature=" + signature;
-		var script = document.createElement("script");
-		script.src = url + path + "?" + data;
-		var head = document.getElementsByTagName("head")[0];
-		head.appendChild(script);
+		this.doOdj(this.chomp(this.strip(url), "/") + path + "?" + data);
 	}
 };
