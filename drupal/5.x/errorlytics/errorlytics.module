@@ -48,7 +48,7 @@ function errorlytics_menu() {
         'path' => 'admin/settings/errorlytics',
         'title' => t('Errorlytics module settings'),
         'description' => t('Errorlytics module settings'),
-        'callback' => 'drupal_get_form',
+        'callback' => 'errorlytics_get_form',
         'callback arguments' => 'errorlytics_admin',
         'access' => user_access('access administration pages'),
         'type' => MENU_NORMAL_ITEM
@@ -138,6 +138,22 @@ function errorlytics_perm() {
     return array('administer errorlytics');
 }
 
+function errorlytics_get_form($form_id) {
+  $form = drupal_get_form($form_id);
+  $errorlytics_url = variable_get(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL);
+  $script_link = '<script src="' . $errorlytics_url . '/javascripts/errorlytics.js"></script>';
+  $script  = '<script>';
+  $script .= 'function testSettings() {';
+  // ids are apparently dasherized from the underscored name
+  $script .= '  var secretKey = document.getElementById("edit-errorlytics-secret-key").value;';
+  $script .= '  var accountId = document.getElementById("edit-errorlytics-account-id").value;';
+  $script .= '  var websiteId = document.getElementById("edit-errorlytics-website-id").value;';
+  $script .= '  ERRORLYTICS.testSettings("' . $errorlytics_url . '", secretKey, accountId, websiteId);';
+  $script .= '}';
+  $script .= '</script>';
+  return $form . $script_link . $script;
+}
+
 function errorlytics_admin() {
     $form = array();
     $form[ERRORLYTICS_URL_VAR_NAME] = array(
@@ -167,6 +183,13 @@ function errorlytics_admin() {
         '#default_value' => variable_get(ERRORLYTICS_WEBSITE_ID_VAR_NAME, ''),
         '#description' => t('Your website id for the Errorlytics service.'),
         '#required' => true
+    );
+    $form['errorlytics_test_settings_button'] = array(
+        '#type' => 'button',
+        '#value' => t('Test configuration'),
+        '#attributes' => array(
+            'onclick' => 'testSettings(); return false;'
+        )
     );
     return system_settings_form($form);
 }
