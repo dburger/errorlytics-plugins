@@ -26,7 +26,17 @@
         </table>
 
         <p class="submit">
+            <input type="button" value="Test Settings" onclick="testSettings();" />
             <input type="submit" name="Submit" value="<?php _e('Save Changes') ?>" />
         </p>
     </form>
 </div>
+<script src="<?php echo $errorlytics_url; ?>/javascripts/errorlytics.js"></script>
+<script>
+function testSettings() {
+    var secretKey = document.getElementById("errorlytics_secret_key").value;
+    var accountId = document.getElementById("errorlytics_account_id").value;
+    var websiteId = document.getElementById("errorlytics_website_id").value;
+    ERRORLYTICS.testSettings("<?php echo $errorlytics_url; ?>", secretKey, accountId, websiteId);
+}
+</script>
