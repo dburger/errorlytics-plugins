@@ -190,7 +190,7 @@ var ERRORLYTICS = {
 	testSettings:function(url, secretKey, accountId, websiteId) {
 		var date = this.getDate();
 		var path = "/accounts/" + this.strip(accountId) + "/websites/"
-			+ this.strip(websiteId) + "/errors";
+			+ this.strip(websiteId) + "/errors/test_settings";
 		var signature = this.sha1(date + path + secretKey);
 		var data = "error[client_occurred_at]=" + date;
 		data += "&error[fake]=true";
