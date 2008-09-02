@@ -92,11 +92,17 @@ task :deploy => :build_all do
   raise 'ERRORLYTICS_ROOT is not defined.' if ERRORLYTICS_ROOT.nil?
   cp "#{BUILDDIR}/errorlytics.jsp", "#{ERRORLYTICS_ROOT}/client"
   cp "#{BUILDDIR}/errorlytics.php", "#{ERRORLYTICS_ROOT}/client"
+  target_path = "#{ERRORLYTICS_ROOT}/public/plugins/drupal"
   Dir["#{BUILDDIR}/errorlytics-drupal-*"].each do |filename|
-    cp filename, "#{ERRORLYTICS_ROOT}/public/plugins/drupal"
+    cp filename, target_path
+    target_name = filename.sub(/.*(errorlytics-drupal-[0-9].x).*(.zip)/, '\1\2')
+    cp filename, "#{target_path}/#{target_name}"
   end
+  target_path = "#{ERRORLYTICS_ROOT}/public/plugins/wordpress"
   Dir["#{BUILDDIR}/errorlytics-wordpress-*"].each do |filename|
-    cp filename, "#{ERRORLYTICS_ROOT}/public/plugins/wordpress"
+    cp filename, target_path
+    target_name = filename.sub(/.*(errorlytics-wordpress-[0-9].x).*(.zip)/, '\1\2')
+    cp filename, "#{target_path}/#{target_name}"
   end
   cp 'javascript/errorlytics.js', "#{ERRORLYTICS_ROOT}/public/javascripts"
 end
