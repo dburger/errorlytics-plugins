@@ -98,4 +98,5 @@ task :deploy => :build_all do
   Dir["#{BUILDDIR}/errorlytics-wordpress-*"].each do |filename|
     cp filename, "#{ERRORLYTICS_ROOT}/public/plugins/wordpress"
   end
+  cp 'javascript/errorlytics.js', "#{ERRORLYTICS_ROOT}/public/javascripts"
 end
