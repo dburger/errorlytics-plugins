@@ -39,15 +39,15 @@ define('ERRORLYTICS_API_VERSION', '1.0');
 function errorlytics_menu() {
     $items = array();
     $items['errorlytics'] = array(
-        'title' => t('Page not found'),
+        'title' => 'Page not found',
         'page callback' => 'errorlytics',
         'access callback' => true,
         'type' => MENU_CALLBACK
     );
     $items['admin/settings/errorlytics'] = array(
-        'title' => t('Errorlytics module settings'),
-        'description' => t('Errorlytics module settings'),
-        'page callback' => 'drupal_get_form',
+        'title' => 'Errorlytics module settings',
+        'description' => 'Errorlytics module settings',
+        'page callback' => 'errorlytics_get_form',
         'page arguments' => array('errorlytics_admin'),
         'access arguments' => array('access administration pages'),
         'type' => MENU_NORMAL_ITEM
@@ -136,6 +136,22 @@ function errorlytics_perm() {
     return array('administer errorlytics');
 }
 
+function errorlytics_get_form($form_id) {
+  $form = drupal_get_form($form_id);
+  $errorlytics_url = variable_get(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL);
+  $script_link = '<script src="' . $errorlytics_url . '/javascripts/errorlytics.js"></script>';
+  $script  = '<script>';
+  $script .= 'function testSettings() {';
+  // ids are apparently dasherized from the underscored name
+  $script .= '  var secretKey = document.getElementById("edit-errorlytics-secret-key").value;';
+  $script .= '  var accountId = document.getElementById("edit-errorlytics-account-id").value;';
+  $script .= '  var websiteId = document.getElementById("edit-errorlytics-website-id").value;';
+  $script .= '  ERRORLYTICS.testSettings("' . $errorlytics_url . '", secretKey, accountId, websiteId);';
+  $script .= '}';
+  $script .= '</script>';
+  return $form . $script_link . $script;
+}
+
 function errorlytics_admin() {
     $form = array();
     $form[ERRORLYTICS_URL_VAR_NAME] = array(
@@ -165,6 +181,13 @@ function errorlytics_admin() {
         '#default_value' => variable_get(ERRORLYTICS_WEBSITE_ID_VAR_NAME, ''),
         '#description' => t('Your website id for the Errorlytics service.'),
         '#required' => true
+    );
+    $form['errorlytics_test_settings_button'] = array(
+        '#type' => 'button',
+        '#value' => t('Test configuration'),
+        '#attributes' => array(
+            'onclick' => 'testSettings(); return false;'
+        )
     );
     return system_settings_form($form);
 }
