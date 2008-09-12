@@ -33,7 +33,7 @@ define('ERRORLYTICS_SECRET_KEY_VAR_NAME', 'errorlytics_secret_key');
 define('ERRORLYTICS_ACCOUNT_ID_VAR_NAME', 'errorlytics_account_id');
 define('ERRORLYTICS_WEBSITE_ID_VAR_NAME', 'errorlytics_website_id');
 define('ERRORLYTICS_PLUGIN_TYPE', 'drupal_6.x');
-define('ERRORLYTICS_PLUGIN_VERSION', '1.0');
+define('ERRORLYTICS_PLUGIN_VERSION', '1.1');
 define('ERRORLYTICS_API_VERSION', '1.0');
 
 function errorlytics_menu() {

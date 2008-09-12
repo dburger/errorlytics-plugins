@@ -4,7 +4,7 @@ Plugin Name: Errorlytics
 Plugin URI: http://www.errorlytics.com
 Description: Interface to the Errorlytics service.
 Author: Accession Media
-Version: 1.0
+Version: 1.1
 Author URI: http://www.errorlytics.com
 
 Copyright (c) 2008 [Accession Media]
@@ -36,7 +36,7 @@ define('ERRORLYTICS_SECRET_KEY_OPT_NAME', 'errorlytics_secret_key');
 define('ERRORLYTICS_ACCOUNT_ID_OPT_NAME', 'errorlytics_account_id');
 define('ERRORLYTICS_WEBSITE_ID_OPT_NAME', 'errorlytics_website_id');
 define('ERRORLYTICS_PLUGIN_TYPE', 'wordpress_2.x');
-define('ERRORLYTICS_PLUGIN_VERSION', '1.0');
+define('ERRORLYTICS_PLUGIN_VERSION', '1.1');
 define('ERRORLYTICS_API_VERSION', '1.0');
 
 function errorlytics_settings() {

@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 */
 
-define('ERRORLYTICS_PLUGIN_VERSION', '1.0');
+define('ERRORLYTICS_PLUGIN_VERSION', '1.1');
 define('ERRORLYTICS_API_VERSION', '1.0');
 
 # escape the process if we are handling a 404 request that we generated
