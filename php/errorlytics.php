@@ -82,10 +82,10 @@ curl_close($ch);
 
 # Act on response (bit of a hack for now but will work)
 preg_match('/<response-code>(.+)<\/response-code>/', $response, $matches);
-$response_code = $matches[1];
+$response_code = html_entity_decode($matches[1]);
 
 preg_match('/<uri>(.+)<\/uri>/', $response, $matches);
-$uri = $matches[1];
+$uri = html_entity_decode($matches[1]);
 
 switch($response_code) {
 case 404:
