@@ -4,7 +4,7 @@ Plugin Name: Errorlytics
 Plugin URI: http://www.errorlytics.com
 Description: Interface to the Errorlytics service.
 Author: Accession Media
-Version: 1.1
+Version: 1.1.1
 Author URI: http://www.errorlytics.com
 
 Copyright (c) 2008 [Accession Media]
@@ -36,7 +36,7 @@ define('ERRORLYTICS_SECRET_KEY_OPT_NAME', 'errorlytics_secret_key');
 define('ERRORLYTICS_ACCOUNT_ID_OPT_NAME', 'errorlytics_account_id');
 define('ERRORLYTICS_WEBSITE_ID_OPT_NAME', 'errorlytics_website_id');
 define('ERRORLYTICS_PLUGIN_TYPE', 'wordpress_2.x');
-define('ERRORLYTICS_PLUGIN_VERSION', '1.1');
+define('ERRORLYTICS_PLUGIN_VERSION', '1.1.1');
 define('ERRORLYTICS_API_VERSION', '1.0');
 
 function errorlytics_settings() {
@@ -72,6 +72,7 @@ function errorlytics_post($url, $secret_key, $account_id, $website_id) {
     $path = '/accounts/' . $account_id . '/websites/' . $website_id . '/errors';
     $params = errorlytics_params($path, $secret_key);
     $ch = curl_init();
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
     curl_setopt($ch, CURLOPT_URL, $url . $path);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $params);

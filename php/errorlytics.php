@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 */
 
-define('ERRORLYTICS_PLUGIN_VERSION', '1.1');
+define('ERRORLYTICS_PLUGIN_VERSION', '1.1.1');
 define('ERRORLYTICS_API_VERSION', '1.0');
 
 # escape the process if we are handling a 404 request that we generated
@@ -73,6 +73,7 @@ $params = errorlytics_params($path, $secret_key);
 
 # Make the request
 $ch = curl_init();
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
 curl_setopt($ch, CURLOPT_URL, $host.$path);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
