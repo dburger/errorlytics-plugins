@@ -158,6 +158,8 @@
         String path = "/accounts/" + ACCOUNT_ID + "/websites/" + WEBSITE_ID + "/errors";
         URL url = new URL(ERRORLYTICS_URL + path);
         URLConnection urlCon = url.openConnection();
+        urlCon.setConnectTimeout(3000);
+        urlCon.setReadTimeout(3000);
         urlCon.setDoInput(true);
         urlCon.setDoOutput(true);
         urlCon.setUseCaches(false);
