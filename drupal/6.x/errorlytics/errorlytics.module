@@ -32,8 +32,9 @@ define('ERRORLYTICS_URL_VAR_NAME', 'errorlytics_url');
 define('ERRORLYTICS_SECRET_KEY_VAR_NAME', 'errorlytics_secret_key');
 define('ERRORLYTICS_ACCOUNT_ID_VAR_NAME', 'errorlytics_account_id');
 define('ERRORLYTICS_WEBSITE_ID_VAR_NAME', 'errorlytics_website_id');
+define('ERRORLYTICS_404_NODE_ID', 'errorlytics_404_node_id');
 define('ERRORLYTICS_PLUGIN_TYPE', 'drupal_6.x');
-define('ERRORLYTICS_PLUGIN_VERSION', '1.1.1');
+define('ERRORLYTICS_PLUGIN_VERSION', '1.2');
 define('ERRORLYTICS_API_VERSION', '1.0');
 
 function errorlytics_menu() {
@@ -45,8 +46,8 @@ function errorlytics_menu() {
         'type' => MENU_CALLBACK
     );
     $items['admin/settings/errorlytics'] = array(
-        'title' => 'Errorlytics module settings',
-        'description' => 'Errorlytics module settings',
+        'title' => 'Errorlytics settings',
+        'description' => 'Control your Errorlytics settings from here.',
         'page callback' => 'errorlytics_get_form',
         'page arguments' => array('errorlytics_admin'),
         'access arguments' => array('access administration pages'),
@@ -78,7 +79,7 @@ function errorlytics_post($url, $secret_key, $account_id, $website_id) {
     $path = '/accounts/' . $account_id . '/websites/' . $website_id . '/errors';
     $params = errorlytics_params($path, $secret_key);
     $ch = curl_init();
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
     curl_setopt($ch, CURLOPT_URL, $url . $path);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
@@ -101,6 +102,7 @@ function errorlytics() {
     $secret_key = errorlytics_variable_get_trim(ERRORLYTICS_SECRET_KEY_VAR_NAME, false);
     $account_id = errorlytics_variable_get_trim(ERRORLYTICS_ACCOUNT_ID_VAR_NAME, false);
     $website_id = errorlytics_variable_get_trim(ERRORLYTICS_WEBSITE_ID_VAR_NAME, false);
+    $node_id = errorlytics_variable_get_trim(ERRORLYTICS_404_NODE_ID, false);
 
     // if missing settings let fall through to default 404 page
     if (!$url || !$secret_key || !$account_id || !$website_id) return;
@@ -113,18 +115,19 @@ function errorlytics() {
     preg_match('/<uri>(.+)<\/uri>/', $response, $matches);
     $uri = html_entity_decode($matches[1]);
 
-    switch ($response_code) {
-        case '404':
-            // falling through to default drupal 404 page for now
-            // this is probably a better idea than taking the 404
-            // page from the return
-            break;
-        case '301':
-        case '302':
-            // TODO: may want to switch to drupal_goto for in site redirects
-            header('Location: ' . $uri, true, $response_code);
-            break;
-    }
+		if($response_code == 404) {
+			# If there is a default node use it otherwise let fall through to default 404
+			# NOTE: 404 header already set in drupal_not_found()
+			# OPTIMIZE: Better to use path and menu_execute_active_handler() rather than node?
+			if($node_id) {
+		    $node = node_build_content(node_load($node_id));
+				drupal_set_title($node->title);
+				return $node->body;
+			}
+		} elseif($response_code == 301 or $response_code == 302) {
+			# TODO: may want to switch to drupal_goto for in site redirects
+			header('Location: ' . $uri, true, $response_code);
+		}
 }
 
 /*
@@ -157,31 +160,38 @@ function errorlytics_admin() {
     $form = array();
     $form[ERRORLYTICS_URL_VAR_NAME] = array(
         '#type' => 'textfield',
-        '#title' => t('Errorlytics URL'),
+        '#title' => t('API URL'),
         '#default_value' => variable_get(ERRORLYTICS_URL_VAR_NAME, ERRORLYTICS_DEFAULT_URL),
         '#description' => t('The URL hosting the Errorlytics service.'),
         '#required' => true
     );
     $form[ERRORLYTICS_SECRET_KEY_VAR_NAME] = array(
         '#type' => 'textfield',
-        '#title' => t('Errorlytics Secret Key'),
+        '#title' => t('Secret Key'),
         '#default_value' => variable_get(ERRORLYTICS_SECRET_KEY_VAR_NAME, ''),
         '#description' => t('Your secret key for the Errorlytics service.'),
         '#required' => true
     );
     $form[ERRORLYTICS_ACCOUNT_ID_VAR_NAME] = array(
         '#type' => 'textfield',
-        '#title' => t('Errorlytics Account ID'),
+        '#title' => t('Account ID'),
         '#default_value' => variable_get(ERRORLYTICS_ACCOUNT_ID_VAR_NAME, ''),
         '#description' => t('Your account id for the Errorlytics service.'),
         '#required' => true
     );
     $form[ERRORLYTICS_WEBSITE_ID_VAR_NAME] = array(
         '#type' => 'textfield',
-        '#title' => t('Errorlytics Website ID'),
+        '#title' => t('Website ID'),
         '#default_value' => variable_get(ERRORLYTICS_WEBSITE_ID_VAR_NAME, ''),
         '#description' => t('Your website id for the Errorlytics service.'),
         '#required' => true
+    );
+    $form[ERRORLYTICS_404_NODE_ID] = array(
+        '#type' => 'textfield',
+        '#title' => t('404 Node ID'),
+        '#default_value' => variable_get(ERRORLYTICS_404_NODE_ID, ''),
+        '#description' => t('The node you want rendered when a 404 occurrs. Leave blank for default.'),
+        '#required' => false
     );
     $form['errorlytics_test_settings_button'] = array(
         '#type' => 'button',
