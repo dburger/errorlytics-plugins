@@ -2,9 +2,10 @@
     <h2>Errorlytics Settings</h2>
 
     <form method="post" action="options.php">
-        <?php wp_nonce_field('update-options'); ?>
+        <?php wp_nonce_field('errorlytics-options'); ?>
         <input type="hidden" name="action" value="update" />
         <input type="hidden" name="page_options" value="<?php echo ERRORLYTICS_URL_OPT_NAME . ',' . ERRORLYTICS_SECRET_KEY_OPT_NAME . ',' . ERRORLYTICS_ACCOUNT_ID_OPT_NAME . ',' . ERRORLYTICS_WEBSITE_ID_OPT_NAME; ?>" />
+        <input type="hidden" name="option_page" value="errorlytics" />
 
         <table class="form-table">
             <tr>

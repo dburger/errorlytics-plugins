@@ -46,6 +46,13 @@ function errorlytics_settings() {
 }
 
 function errorlytics_add_menu() {
+    if (function_exists('is_site_admin')) {
+        // this is wordpress mu, the fields need to be whitelisted
+        add_option_update_handler('errorlytics', 'errorlytics_url');
+        add_option_update_handler('errorlytics', 'errorlytics_secret_key');
+        add_option_update_handler('errorlytics', 'errorlytics_account_id');
+        add_option_update_handler('errorlytics', 'errorlytics_website_id');
+    }
     add_submenu_page('options-general.php', 'Errorlytics', 'Errorlytics', 8, __FILE__, 'errorlytics_settings');
 }
 
