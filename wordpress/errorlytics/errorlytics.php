@@ -46,8 +46,9 @@ function errorlytics_settings() {
 }
 
 function errorlytics_add_menu() {
-    if (function_exists('is_site_admin')) {
-        // this is wordpress mu, the fields need to be whitelisted
+    // apparently the need to whitelist the fields you will be setting is a
+    // feature of the 2.7* series ???
+    if (function_exists('add_option_update_handler')) {
         add_option_update_handler('errorlytics', 'errorlytics_url');
         add_option_update_handler('errorlytics', 'errorlytics_secret_key');
         add_option_update_handler('errorlytics', 'errorlytics_account_id');
